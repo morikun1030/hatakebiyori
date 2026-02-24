@@ -29,8 +29,12 @@ class SettingsService {
     if (offset == 0 || months.isEmpty) return months;
     return months.map((m) {
       var a = m + offset;
-      while (a < 1) a += 12;
-      while (a > 12) a -= 12;
+      while (a < 1) {
+        a += 12;
+      }
+      while (a > 12) {
+        a -= 12;
+      }
       return a;
     }).toSet().toList()
       ..sort();

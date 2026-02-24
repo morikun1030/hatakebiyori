@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../data/regions_data.dart';
 import '../models/region.dart';
+import '../services/auth_service.dart';
 import '../services/settings_service.dart';
+import '../services/storage_service.dart';
+import '../utils/download_util.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -13,9 +18,125 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   Region _selectedRegion = SettingsService.regionNotifier.value;
 
+  // ─── アカウント：サインアウト ─────────────────────────────────────
+
+  Future<void> _signOut() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('サインアウト'),
+        content: const Text('サインアウトしますか？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('サインアウト'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await AuthService.signOut();
+  }
+
+  // ─── エクスポート ────────────────────────────────────────────────
+
+  Future<void> _export() async {
+    try {
+      final data = await StorageService().exportData();
+      final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
+      final now = DateTime.now();
+      final dateStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      downloadJson(jsonStr, 'kateisaien_backup_$dateStr.json');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('バックアップファイルをダウンロードしました'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('エクスポートに失敗しました: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  // ─── インポート ──────────────────────────────────────────────────
+
+  Future<void> _import() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        withData: true,
+      );
+      if (result == null || result.files.single.bytes == null) return;
+
+      final jsonStr = utf8.decode(result.files.single.bytes!);
+      final data = jsonDecode(jsonStr) as Map<String, dynamic>;
+
+      if (!mounted) return;
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('データをインポート'),
+          content: const Text(
+            '現在のデータはすべて上書きされます。\nよろしいですか？',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('キャンセル'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.orange,
+              ),
+              child: const Text('上書きインポート'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+
+      await StorageService().importData(data);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('データをインポートしました'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('インポートに失敗しました: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final user = AuthService.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -25,7 +146,125 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // 地域設定セクション
+          // ── アカウントセクション ────────────────────────────────
+          _SectionHeader(icon: Icons.account_circle_outlined, label: 'アカウント'),
+          const SizedBox(height: 4),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  if (user != null) ...[
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundImage: user.photoURL != null
+                              ? NetworkImage(user.photoURL!)
+                              : null,
+                          backgroundColor: cs.primaryContainer,
+                          child: user.photoURL == null
+                              ? Icon(Icons.person, color: cs.primary)
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                user.displayName ?? '名前なし',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                user.email ?? '',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _signOut,
+                      icon: const Icon(Icons.logout, size: 18),
+                      label: const Text('サインアウト'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // ── バックアップセクション ──────────────────────────────
+          _SectionHeader(icon: Icons.backup_outlined, label: 'バックアップ'),
+          const SizedBox(height: 4),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '栽培データをJSONファイルとしてバックアップしたり、以前のバックアップから復元できます。',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade600,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _export,
+                          icon: const Icon(Icons.download_outlined, size: 18),
+                          label: const Text('エクスポート'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: cs.primary,
+                            side: BorderSide(color: cs.primary),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _import,
+                          icon: const Icon(Icons.upload_outlined, size: 18),
+                          label: const Text('インポート'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.orange.shade700,
+                            side: BorderSide(color: Colors.orange.shade700),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // ── 地域設定セクション ──────────────────────────────────
           _SectionHeader(icon: Icons.location_on, label: '栽培地域'),
           const SizedBox(height: 4),
           Card(

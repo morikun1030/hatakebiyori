@@ -1,9 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'firebase_options.dart';
 import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'services/auth_service.dart';
 import 'services/settings_service.dart';
+import 'services/storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await SettingsService.load();
   runApp(const AgriApp());
 }
@@ -17,7 +24,22 @@ class AgriApp extends StatelessWidget {
       title: '家庭菜園アプリ',
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(),
-      home: const HomeScreen(),
+      home: StreamBuilder<User?>(
+        stream: AuthService.authStateChanges,
+        builder: (ctx, snap) {
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          if (snap.data == null) {
+            return const LoginScreen();
+          }
+          // 初回ログイン時にローカルデータをFirestoreへ移行
+          StorageService.migrateFromLocalStorage(snap.data!.uid);
+          return const HomeScreen();
+        },
+      ),
     );
   }
 

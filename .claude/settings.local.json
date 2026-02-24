@@ -52,7 +52,19 @@
       "Bash(cmd.exe /c \"C:\\\\src\\\\flutter\\\\bin\\\\flutter.bat build web --release\" 2>&1)",
       "Bash(cmd.exe /c \"where firebase\" 2>&1; cmd.exe /c \"where npx\" 2>&1)",
       "Bash(cmd.exe /c \"cd C:\\\\Users\\\\morik\\\\AgriApp && git status\" 2>&1; cmd.exe /c \"cd C:\\\\Users\\\\morik\\\\AgriApp && git remote -v\" 2>&1)",
-      "Bash(git init && git branch -M main 2>&1)"
+      "Bash(git init && git branch -M main 2>&1)",
+      "Bash(git commit -m \"$\\(cat <<'EOF'\nInitial commit: 家庭菜園ノート\n\n家庭菜園管理アプリ。栽培カレンダー・日誌・ダッシュボード・マイ畑機能を含む。\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(cmd.exe /c \"C:\\\\src\\\\flutter\\\\bin\\\\flutter.bat pub global activate peanut\" 2>&1 | tail -3; curl -s \"https://api.github.com/repos/morik/garden-note/actions/runs?per_page=3\" 2>/dev/null | python3 -c \"import sys,json; runs=json.load\\(sys.stdin\\).get\\('workflow_runs',[]\\); [print\\(r['status'], r['conclusion'], r['created_at'], r['html_url']\\) for r in runs]\" 2>/dev/null || echo \"checking...\")",
+      "Bash(git push -u origin main 2>&1)",
+      "Bash(env)",
+      "Bash(which flutter 2>&1; echo \"EXIT:$?\")",
+      "Bash(echo $PATH)",
+      "Bash(dart --version 2>&1; echo \"EXIT:$?\")",
+      "Bash(cmd.exe /c \"flutter --version\" 2>&1; echo \"EXIT:$?\")",
+      "Bash(/mnt/c/src/flutter/bin/flutter --version 2>&1)",
+      "Bash(cmd.exe /c \"C:\\\\src\\\\flutter\\\\bin\\\\flutter --version\" 2>&1)",
+      "Bash(cmd.exe /c \"C:\\\\src\\\\flutter\\\\bin\\\\flutter pub get\" 2>&1)",
+      "Bash(cmd.exe /c \"C:\\\\src\\\\flutter\\\\bin\\\\flutter analyze\" 2>&1)"
     ]
   }
 }
