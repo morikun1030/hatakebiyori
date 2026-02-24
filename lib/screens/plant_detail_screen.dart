@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/cultivation_record.dart';
 import '../models/my_plant.dart';
 import '../services/storage_service.dart';
+import '../utils/share_util.dart';
 import 'add_record_screen.dart';
 import 'annual_plan_screen.dart';
 
@@ -128,6 +129,14 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
         ),
         backgroundColor: cs.primaryContainer,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            tooltip: 'SNSでシェア',
+            onPressed: () => ShareUtil.showShareSheet(
+              context,
+              ShareUtil.buildPlantText(_plant),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.calendar_month_outlined),
             tooltip: '年間計画',

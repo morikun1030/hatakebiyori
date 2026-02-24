@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/cultivation_record.dart';
 import '../services/storage_service.dart';
+import '../utils/share_util.dart';
 import 'add_record_screen.dart';
 
 class DiaryScreen extends StatefulWidget {
@@ -175,6 +176,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
               ...dayRecords.map((record) => _RecordCard(
                     record: record,
                     onDelete: () => _deleteRecord(record.id),
+                    onShare: () => ShareUtil.showShareSheet(
+                      context,
+                      ShareUtil.buildRecordText(record),
+                    ),
                   )),
               const SizedBox(height: 4),
             ],
@@ -299,8 +304,13 @@ class _VerticalDivider extends StatelessWidget {
 class _RecordCard extends StatelessWidget {
   final CultivationRecord record;
   final VoidCallback onDelete;
+  final VoidCallback onShare;
 
-  const _RecordCard({required this.record, required this.onDelete});
+  const _RecordCard({
+    required this.record,
+    required this.onDelete,
+    required this.onShare,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -366,6 +376,15 @@ class _RecordCard extends StatelessWidget {
                                     fontSize: 14)),
                             const SizedBox(width: 8),
                             _workTypeLabel(record.workType),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: onShare,
+                              child: Icon(
+                                Icons.share_outlined,
+                                size: 18,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
                           ],
                         ),
                         if (record.harvestAmount != null ||
