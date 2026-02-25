@@ -3,8 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
-import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/new_home_screen.dart';
 import 'services/auth_service.dart';
 import 'services/settings_service.dart';
 import 'services/storage_service.dart';
@@ -26,7 +26,7 @@ class AgriApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '家庭菜園アプリ',
+      title: 'はたけびより',
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(),
       home: StreamBuilder<User?>(
@@ -42,7 +42,7 @@ class AgriApp extends StatelessWidget {
           }
           // 初回ログイン時にローカルデータをFirestoreへ移行
           StorageService.migrateFromLocalStorage(snap.data!.uid);
-          return const HomeScreen();
+          return const NewHomeScreen();
         },
       ),
     );

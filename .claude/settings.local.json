@@ -64,7 +64,16 @@
       "Bash(/mnt/c/src/flutter/bin/flutter --version 2>&1)",
       "Bash(cmd.exe /c \"C:\\\\src\\\\flutter\\\\bin\\\\flutter --version\" 2>&1)",
       "Bash(cmd.exe /c \"C:\\\\src\\\\flutter\\\\bin\\\\flutter pub get\" 2>&1)",
-      "Bash(cmd.exe /c \"C:\\\\src\\\\flutter\\\\bin\\\\flutter analyze\" 2>&1)"
+      "Bash(cmd.exe /c \"C:\\\\src\\\\flutter\\\\bin\\\\flutter analyze\" 2>&1)",
+      "Bash(git add lib/main.dart lib/utils/share_util.dart lib/screens/plant_detail_screen.dart lib/screens/diary_screen.dart && git commit -m \"Add offline support and SNS share buttons\" && git push 2>&1)",
+      "Bash(flutter analyze --no-fatal-infos 2>&1)",
+      "Bash(ls /mnt/c/Users/morik/AppData/Local/flutter/bin/flutter.bat 2>/dev/null; ls \"/mnt/c/Program Files/flutter/bin/flutter.bat\" 2>/dev/null; ls /mnt/c/src/flutter/bin/flutter 2>/dev/null; cmd.exe /c \"where flutter\" 2>/dev/null)",
+      "Bash(cmd.exe /c \"cd /d C:\\\\Users\\\\morik\\\\AgriApp && C:\\\\src\\\\flutter\\\\bin\\\\flutter.bat analyze --no-fatal-infos\" 2>&1)",
+      "Bash(cmd.exe /c \"cd /d C:\\\\Users\\\\morik\\\\AgriApp && git status\" 2>&1)",
+      "Bash(cmd.exe /c \"cd /d C:\\\\Users\\\\morik\\\\AgriApp && git log --oneline -5\" 2>&1)",
+      "Bash(cmd.exe /c \"cd /d C:\\\\Users\\\\morik\\\\AgriApp && git remote -v\" 2>&1)",
+      "Bash(cat /mnt/c/Users/morik/AgriApp/.firebaserc 2>/dev/null || echo \".firebaserc not found\" && firebase --version 2>/dev/null || echo \"firebase CLI not found\")",
+      "Bash(firebase hosting:channel:list 2>&1 | head -5 || echo \"Hosting channels check done\")"
     ]
   }
 }

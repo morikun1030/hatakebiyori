@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // タイトル
               Text(
-                '家庭菜園ノート',
+                'はたけびより',
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,

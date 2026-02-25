@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import '../utils/download_util.dart';
+import 'help_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -51,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final now = DateTime.now();
       final dateStr =
           '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-      downloadJson(jsonStr, 'kateisaien_backup_$dateStr.json');
+      downloadJson(jsonStr, 'hatakebiyori_backup_$dateStr.json');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -146,6 +147,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // ── ヘルプセクション ────────────────────────────────────
+          _SectionHeader(icon: Icons.help_outline, label: 'ヘルプ'),
+          const SizedBox(height: 4),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.menu_book_outlined),
+              title: const Text('使い方・よくある質問'),
+              subtitle: const Text('操作方法や機能の説明を確認'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HelpScreen()),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
           // ── アカウントセクション ────────────────────────────────
           _SectionHeader(icon: Icons.account_circle_outlined, label: 'アカウント'),
           const SizedBox(height: 4),
