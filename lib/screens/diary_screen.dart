@@ -130,7 +130,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
     }
     final dateKeys = grouped.keys.toList();
 
-    return ListView.builder(
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: ListView.builder(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 100),
       itemCount: dateKeys.length,
       itemBuilder: (context, groupIndex) {
@@ -186,6 +189,8 @@ class _DiaryScreenState extends State<DiaryScreen> {
           ),
         );
       },
+        ),
+      ),
     );
   }
 }

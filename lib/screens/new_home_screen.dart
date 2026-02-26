@@ -103,7 +103,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             : CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(
-                    child: Padding(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 600),
+                        child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,6 +187,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                           _MonthlyTipCard(month: DateTime.now().month),
                           const SizedBox(height: 32),
                         ],
+                      ),
+                    ),
                       ),
                     ),
                   ),
@@ -468,14 +473,19 @@ class _FeatureCardGrid extends StatelessWidget {
       _FeatureItem('⚙️', '設定', '地域・バックアップ', onSettings),
     ];
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
-      childAspectRatio: 1.6,
-      children: items.map((item) => _FeatureCard(item: item)).toList(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cols = constraints.maxWidth > 400 ? 3 : 2;
+        return GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: cols,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: cols == 3 ? 1.4 : 1.6,
+          children: items.map((item) => _FeatureCard(item: item)).toList(),
+        );
+      },
     );
   }
 }

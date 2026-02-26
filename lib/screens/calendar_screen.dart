@@ -142,7 +142,10 @@ class _MonthlyView extends StatelessWidget {
           harvestCount: harvest.length,
         ),
         Expanded(
-          child: ListView(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
               if (sowing.isNotEmpty) ...[
@@ -189,6 +192,8 @@ class _MonthlyView extends StatelessWidget {
                   ),
                 ),
             ],
+          ),
+            ),
           ),
         ),
       ],

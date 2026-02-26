@@ -144,7 +144,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: const Text('設定', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: cs.primaryContainer,
       ),
-      body: ListView(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // ── ヘルプセクション ────────────────────────────────────
@@ -395,6 +398,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ],
+          ),
+        ),
       ),
     );
   }
