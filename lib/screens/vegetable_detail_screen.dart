@@ -7,6 +7,7 @@ import '../models/pest_disease.dart';
 import '../models/region.dart';
 import '../models/vegetable.dart';
 import '../services/settings_service.dart';
+import 'add_plant_screen.dart';
 
 class VegetableDetailScreen extends StatelessWidget {
   final Vegetable vegetable;
@@ -33,6 +34,17 @@ class VegetableDetailScreen extends StatelessWidget {
         final currentMonth = DateTime.now().month;
 
         return Scaffold(
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    AddPlantScreen(initialVegetable: vegetable),
+              ),
+            ),
+            icon: const Icon(Icons.add),
+            label: const Text('マイ畑に追加'),
+          ),
           body: CustomScrollView(
             slivers: [
               SliverAppBar(

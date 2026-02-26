@@ -6,7 +6,9 @@ import '../models/vegetable.dart';
 import '../services/storage_service.dart';
 
 class AddPlantScreen extends StatefulWidget {
-  const AddPlantScreen({super.key});
+  final Vegetable? initialVegetable;
+
+  const AddPlantScreen({super.key, this.initialVegetable});
 
   @override
   State<AddPlantScreen> createState() => _AddPlantScreenState();
@@ -26,6 +28,14 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
 
   static const _plantTypes = ['種まき', '定植', '苗購入'];
   static const _locationPresets = ['プランター', '花壇', '畑', '鉢', '地植え'];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialVegetable != null) {
+      _selectedVegetable = widget.initialVegetable;
+    }
+  }
 
   @override
   void dispose() {

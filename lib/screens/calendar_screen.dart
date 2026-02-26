@@ -3,6 +3,7 @@ import '../data/vegetables_data.dart';
 import '../models/region.dart';
 import '../models/vegetable.dart';
 import '../services/settings_service.dart';
+import 'add_plant_screen.dart';
 import 'vegetable_detail_screen.dart';
 import 'settings_screen.dart';
 
@@ -393,7 +394,22 @@ class _VeggieCard extends StatelessWidget {
         title: Text(v.name,
             style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text('${v.category}  ·  ${v.difficulty}'),
-        trailing: const Icon(Icons.chevron_right, size: 18),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline),
+              tooltip: 'マイ畑に追加',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddPlantScreen(initialVegetable: v),
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 18),
+          ],
+        ),
         onTap: () {
           Navigator.push(
             context,

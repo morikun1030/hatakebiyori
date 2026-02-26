@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import '../data/vegetables_data.dart';
 import '../models/cultivation_record.dart';
 import '../models/my_plant.dart';
+import '../models/region.dart';
+import '../models/vegetable.dart';
+import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import 'add_plant_screen.dart';
 import 'plant_detail_screen.dart';
 
 const _maxPlants = 20;
+
+enum _ViewMode { list, calendar, annualPlan }
 
 class MyGardenScreen extends StatefulWidget {
   const MyGardenScreen({super.key});
@@ -19,7 +25,7 @@ class _MyGardenScreenState extends State<MyGardenScreen> {
   List<MyPlant> _plants = [];
   List<CultivationRecord> _records = [];
   bool _loading = true;
-  bool _calendarMode = false;
+  _ViewMode _viewMode = _ViewMode.list;
 
   @override
   void initState() {
@@ -67,11 +73,9 @@ class _MyGardenScreenState extends State<MyGardenScreen> {
             ),
           if (!_loading && _plants.isNotEmpty)
             IconButton(
-              icon: Icon(
-                  _calendarMode ? Icons.list : Icons.calendar_month),
-              tooltip: _calendarMode ? 'リスト表示' : 'カレンダー表示',
-              onPressed: () =>
-                  setState(() => _calendarMode = !_calendarMode),
+              icon: Icon(_nextModeIcon),
+              tooltip: _nextModeTooltip,
+              onPressed: () => setState(() => _viewMode = _nextViewMode),
             ),
         ],
       ),
@@ -79,8 +83,8 @@ class _MyGardenScreenState extends State<MyGardenScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _plants.isEmpty
               ? _EmptyState(onAdd: _goToAdd)
-              : _calendarMode
-                  ? _GardenCalendar(
+              : switch (_viewMode) {
+                  _ViewMode.calendar => _GardenCalendar(
                       plants: _plants,
                       records: _records,
                       onRecordTap: (r) async {
@@ -89,12 +93,15 @@ class _MyGardenScreenState extends State<MyGardenScreen> {
                             .firstOrNull;
                         if (plant != null) await _goToDetail(plant);
                       },
-                    )
-                  : _PlantList(
+                    ),
+                  _ViewMode.annualPlan =>
+                    _AnnualPlanView(plants: _plants),
+                  _ViewMode.list => _PlantList(
                       plants: _plants,
                       onTap: _goToDetail,
                       onDelete: _delete,
                     ),
+                },
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _goToAdd,
         icon: const Icon(Icons.add),
@@ -102,6 +109,24 @@ class _MyGardenScreenState extends State<MyGardenScreen> {
       ),
     );
   }
+
+  _ViewMode get _nextViewMode => switch (_viewMode) {
+        _ViewMode.list => _ViewMode.calendar,
+        _ViewMode.calendar => _ViewMode.annualPlan,
+        _ViewMode.annualPlan => _ViewMode.list,
+      };
+
+  IconData get _nextModeIcon => switch (_viewMode) {
+        _ViewMode.list => Icons.calendar_month,
+        _ViewMode.calendar => Icons.bar_chart,
+        _ViewMode.annualPlan => Icons.list,
+      };
+
+  String get _nextModeTooltip => switch (_viewMode) {
+        _ViewMode.list => 'カレンダー表示',
+        _ViewMode.calendar => '年間計画',
+        _ViewMode.annualPlan => 'リスト表示',
+      };
 
   Future<void> _goToAdd() async {
     if (_plants.length >= _maxPlants) {
@@ -841,6 +866,255 @@ class _GardenCalendarState extends State<_GardenCalendar> {
               ],
             ),
           ),
+      ],
+    );
+  }
+}
+
+// ── 年間計画ビュー ────────────────────────────────────────
+
+class _AnnualPlanView extends StatelessWidget {
+  final List<MyPlant> plants;
+
+  const _AnnualPlanView({required this.plants});
+
+  static const _cellWidth = 40.0;
+  static const _labelWidth = 110.0;
+  static const _cellHeight = 28.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Region>(
+      valueListenable: SettingsService.regionNotifier,
+      builder: (context, region, _) {
+        final offset = region.offset;
+        final currentMonth = DateTime.now().month;
+
+        // 登録植物とそのVegetableデータを結合
+        final entries = plants.map((plant) {
+          final veg = VegetablesData.all
+              .where((v) => v.id == plant.vegetableId)
+              .firstOrNull;
+          return (plant, veg);
+        }).where((e) => e.$2 != null).toList();
+
+        // 今月の作業一覧
+        final monthTasks = <(MyPlant, String)>[];
+        for (final (plant, veg) in entries) {
+          final adjSow =
+              SettingsService.adjustMonths(veg!.sowingMonths, offset);
+          final adjPlant =
+              SettingsService.adjustMonths(veg.plantingMonths, offset);
+          final adjHarvest =
+              SettingsService.adjustMonths(veg.harvestMonths, offset);
+          if (adjSow.contains(currentMonth)) {
+            monthTasks.add((plant, '種まき'));
+          }
+          if (adjPlant.contains(currentMonth)) {
+            monthTasks.add((plant, '定植'));
+          }
+          if (adjHarvest.contains(currentMonth)) {
+            monthTasks.add((plant, '収穫'));
+          }
+        }
+
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // ── 凡例 ──
+            Wrap(
+              spacing: 16,
+              children: [
+                _legendItem(Colors.orange.shade400, '種まき'),
+                _legendItem(Colors.blue.shade400, '定植'),
+                _legendItem(Colors.green.shade500, '収穫'),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // ── ガントチャート ──
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ヘッダー行（月ラベル）
+                  Row(
+                    children: [
+                      const SizedBox(width: _labelWidth),
+                      ...List.generate(12, (i) {
+                        final isNow = i + 1 == currentMonth;
+                        return Container(
+                          width: _cellWidth,
+                          height: 24,
+                          alignment: Alignment.center,
+                          decoration: isNow
+                              ? BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                )
+                              : null,
+                          child: Text(
+                            '${i + 1}月',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: isNow
+                                  ? FontWeight.bold
+                                  : FontWeight.w400,
+                              color: isNow
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.grey.shade600,
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+
+                  // 植物行
+                  for (final (plant, veg) in entries)
+                    _buildPlantRow(context, plant, veg!, offset, currentMonth),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ── 今月の作業 ──
+            Row(
+              children: [
+                Icon(Icons.event_available,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 6),
+                Text(
+                  '$currentMonth月にやること',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (monthTasks.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  'この月に予定されている作業はありません',
+                  style: TextStyle(
+                      fontSize: 13, color: Colors.grey.shade500),
+                ),
+              )
+            else
+              for (final (plant, task) in monthTasks)
+                _buildTaskTile(context, plant, task),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPlantRow(BuildContext context, MyPlant plant,
+      Vegetable veg, int offset, int currentMonth) {
+    final adjSow =
+        SettingsService.adjustMonths(veg.sowingMonths, offset);
+    final adjPlant =
+        SettingsService.adjustMonths(veg.plantingMonths, offset);
+    final adjHarvest =
+        SettingsService.adjustMonths(veg.harvestMonths, offset);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: _labelWidth,
+            child: Text(
+              '${plant.vegetableEmoji} ${plant.vegetableName}',
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          ...List.generate(12, (i) {
+            final month = i + 1;
+            Color cellColor;
+            if (adjHarvest.contains(month)) {
+              cellColor = Colors.green.shade400;
+            } else if (adjSow.contains(month)) {
+              cellColor = Colors.orange.shade400;
+            } else if (adjPlant.contains(month)) {
+              cellColor = Colors.blue.shade400;
+            } else {
+              cellColor = Colors.grey.shade100;
+            }
+            final isNow = month == currentMonth;
+            return Container(
+              width: _cellWidth,
+              height: _cellHeight,
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+              decoration: BoxDecoration(
+                color: cellColor,
+                borderRadius: BorderRadius.circular(5),
+                border: isNow
+                    ? Border.all(
+                        color: Colors.grey.shade500, width: 1.5)
+                    : null,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTaskTile(BuildContext context, MyPlant plant, String task) {
+    final (icon, color) = _workStyle(task);
+    return Card(
+      margin: const EdgeInsets.only(bottom: 6),
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        dense: true,
+        leading: Text(plant.vegetableEmoji,
+            style: const TextStyle(fontSize: 24)),
+        title: Text(plant.vegetableName,
+            style: const TextStyle(
+                fontSize: 14, fontWeight: FontWeight.bold)),
+        subtitle: Row(
+          children: [
+            Icon(icon, size: 13, color: color),
+            const SizedBox(width: 4),
+            Text(task,
+                style: TextStyle(
+                    fontSize: 12,
+                    color: color,
+                    fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _legendItem(Color color, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 14,
+          height: 14,
+          decoration: BoxDecoration(
+              color: color, borderRadius: BorderRadius.circular(3)),
+        ),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 12)),
       ],
     );
   }

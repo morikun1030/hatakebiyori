@@ -12,7 +12,7 @@ class VegetablesData {
       harvestMonths: [5, 6, 11, 12, 1],
       difficulty: '初心者向け',
       description: '栄養価が高く育てやすい定番野菜。寒さに強く秋まきがおすすめ。アクが少ない品種も多い。',
-      emoji: '🌿',
+      emoji: '🥬',
     ),
     Vegetable(
       id: 'komatsuna',
@@ -34,7 +34,7 @@ class VegetablesData {
       harvestMonths: [5, 6, 11, 12],
       difficulty: '初心者向け',
       description: 'サラダに欠かせないレタス。冷涼な気候を好む。高温に弱いので夏は避ける。',
-      emoji: '🥗',
+      emoji: '🥬',
     ),
     Vegetable(
       id: 'cabbage',
@@ -45,7 +45,7 @@ class VegetablesData {
       harvestMonths: [6, 7, 11, 12, 1],
       difficulty: '中級',
       description: '結球するまで時間がかかるがやりがいのある野菜。アオムシなどの虫に注意が必要。',
-      emoji: '🥦',
+      emoji: '🥬',
     ),
     Vegetable(
       id: 'hakusai',
@@ -91,7 +91,7 @@ class VegetablesData {
       harvestMonths: [5, 6, 11, 12, 1],
       difficulty: '初心者向け',
       description: '日本の食卓に欠かせない大根。直まきで育てる。深い土が必要なため深い鉢やプランターを使う。',
-      emoji: '🫚',
+      emoji: '🥕',
     ),
     Vegetable(
       id: 'carrot',
@@ -135,7 +135,7 @@ class VegetablesData {
       harvestMonths: [5, 6, 10, 11],
       difficulty: '初心者向け',
       description: '葉も根も食べられる万能野菜。生育が早く短期間で収穫できる。',
-      emoji: '🥚',
+      emoji: '🌱',
     ),
 
     // ── 実野菜 ────────────────────────────────────
@@ -225,7 +225,7 @@ class VegetablesData {
       harvestMonths: [7, 8, 9],
       difficulty: '初心者向け',
       description: 'グリーンカーテンとしても人気。暑さに強く育てやすい夏の定番野菜。',
-      emoji: '🥬',
+      emoji: '🥒',
     ),
     Vegetable(
       id: 'corn',
@@ -411,7 +411,7 @@ class VegetablesData {
       harvestMonths: [4, 5, 6, 10, 11],
       difficulty: '初心者向け',
       description: '二十日大根とも呼ばれ20〜30日で収穫可能。初心者や子どもの入門野菜として最適。',
-      emoji: '🔴',
+      emoji: '🌱',
     ),
     Vegetable(
       id: 'ginger',
@@ -422,7 +422,7 @@ class VegetablesData {
       harvestMonths: [9, 10, 11],
       difficulty: '中級',
       description: '種ショウガを植えて育てる。高温多湿を好む。葉ショウガは夏から収穫可能。',
-      emoji: '🫚',
+      emoji: '🌱',
     ),
     Vegetable(
       id: 'garlic',
@@ -444,7 +444,7 @@ class VegetablesData {
       harvestMonths: [10, 11],
       difficulty: '中級',
       description: '親芋から子芋・孫芋が増える。高温多湿を好む。水はけのよい土と十分な水が必要。',
-      emoji: '🥔',
+      emoji: '🌱',
     ),
     Vegetable(
       id: 'burdock',
@@ -455,7 +455,7 @@ class VegetablesData {
       harvestMonths: [11, 12, 1, 2],
       difficulty: '上級',
       description: '深く耕した土が必要で栽培スペースを要する。短根品種ならプランターでも可。',
-      emoji: '🌾',
+      emoji: '🥕',
     ),
 
     // ── 実野菜（追加）────────────────────────────
@@ -479,7 +479,7 @@ class VegetablesData {
       harvestMonths: [7, 8, 9],
       difficulty: '初心者向け',
       description: '暑さに強く育てやすい夏野菜。実が大きくなりすぎると固くなるので早めに収穫。',
-      emoji: '🌟',
+      emoji: '🫛',
     ),
     Vegetable(
       id: 'paprika',
@@ -549,7 +549,7 @@ class VegetablesData {
       harvestMonths: [8, 9, 10],
       difficulty: '初心者向け',
       description: '病害虫に強く果樹の中でも育てやすい。鉢植えでもよく実がなる。完熟したら即収穫。',
-      emoji: '🍐',
+      emoji: '🍑',
     ),
     Vegetable(
       id: 'persimmon',
@@ -571,7 +571,7 @@ class VegetablesData {
       harvestMonths: [6],
       difficulty: '初心者向け',
       description: '梅干しや梅酒に。一本でも実がなる品種が多い。早春に花が咲き実がなるまで楽しめる。',
-      emoji: '🌸',
+      emoji: '🍑',
     ),
     Vegetable(
       id: 'grape',
