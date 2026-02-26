@@ -51,10 +51,7 @@ class _VegetableDbScreenState extends State<VegetableDbScreen> {
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 860),
-          child: Column(
+      body: Column(
         children: [
           // 検索バー
           Padding(
@@ -139,8 +136,6 @@ class _VegetableDbScreenState extends State<VegetableDbScreen> {
                   ),
           ),
         ],
-          ),
-        ),
       ),
     );
   }

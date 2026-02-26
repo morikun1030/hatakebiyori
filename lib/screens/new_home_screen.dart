@@ -103,10 +103,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             : CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 860),
-                        child: Padding(
+                    child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,8 +184,6 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                           _MonthlyTipCard(month: DateTime.now().month),
                           const SizedBox(height: 32),
                         ],
-                      ),
-                    ),
                       ),
                     ),
                   ),
