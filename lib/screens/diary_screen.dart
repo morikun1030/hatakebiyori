@@ -132,7 +132,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 600),
+        constraints: const BoxConstraints(maxWidth: 860),
         child: ListView.builder(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 100),
       itemCount: dateKeys.length,

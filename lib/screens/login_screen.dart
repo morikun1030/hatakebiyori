@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: cs.primaryContainer.withValues(alpha: 0.3),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 440),
+          constraints: const BoxConstraints(maxWidth: 500),
           child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
           child: Column(

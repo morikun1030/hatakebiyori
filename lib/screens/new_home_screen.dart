@@ -105,7 +105,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   SliverToBoxAdapter(
                     child: Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 600),
+                        constraints: const BoxConstraints(maxWidth: 860),
                         child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(

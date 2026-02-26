@@ -144,7 +144,7 @@ class _MonthlyView extends StatelessWidget {
         Expanded(
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
+              constraints: const BoxConstraints(maxWidth: 860),
               child: ListView(
             padding: const EdgeInsets.all(16),
             children: [

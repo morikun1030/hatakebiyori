@@ -146,7 +146,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
+          constraints: const BoxConstraints(maxWidth: 860),
           child: ListView(
         padding: const EdgeInsets.all(16),
         children: [

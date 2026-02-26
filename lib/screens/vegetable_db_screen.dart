@@ -53,7 +53,7 @@ class _VegetableDbScreenState extends State<VegetableDbScreen> {
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
+          constraints: const BoxConstraints(maxWidth: 860),
           child: Column(
         children: [
           // 検索バー
