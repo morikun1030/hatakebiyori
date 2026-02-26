@@ -6,6 +6,7 @@ import '../models/region.dart';
 import '../models/vegetable.dart';
 import '../services/settings_service.dart';
 import '../services/storage_service.dart';
+import '../widgets/vegetable_avatar.dart';
 import 'add_plant_screen.dart';
 import 'plant_detail_screen.dart';
 
@@ -358,8 +359,11 @@ class _PlantCard extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                Text(plant.vegetableEmoji,
-                    style: const TextStyle(fontSize: 36)),
+                VegetableAvatar(
+                  vegetableId: plant.vegetableId,
+                  vegetableName: plant.vegetableName,
+                  size: 48,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -1034,10 +1038,22 @@ class _AnnualPlanView extends StatelessWidget {
         children: [
           SizedBox(
             width: _labelWidth,
-            child: Text(
-              '${plant.vegetableEmoji} ${plant.vegetableName}',
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
+            child: Row(
+              children: [
+                VegetableAvatar(
+                  vegetableId: plant.vegetableId,
+                  vegetableName: plant.vegetableName,
+                  size: 20,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    plant.vegetableName,
+                    style: const TextStyle(fontSize: 11),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
           ...List.generate(12, (i) {

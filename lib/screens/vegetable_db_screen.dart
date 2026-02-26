@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/vegetables_data.dart';
 import '../models/vegetable.dart';
+import '../widgets/vegetable_avatar.dart';
 import 'vegetable_detail_screen.dart';
 
 PageRouteBuilder<T> _fadeSlideRoute<T>(Widget page) {
@@ -183,7 +184,11 @@ class _VegetableListItem extends StatelessWidget {
         child: ListTile(
           leading: Hero(
             tag: 'veg-${v.id}',
-            child: Text(v.emoji, style: const TextStyle(fontSize: 30)),
+            child: VegetableAvatar(
+              vegetableId: v.id,
+              vegetableName: v.name,
+              size: 44,
+            ),
           ),
           title: Row(
             children: [

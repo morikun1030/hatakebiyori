@@ -4,6 +4,7 @@ import '../models/cultivation_record.dart';
 import '../models/my_plant.dart';
 import '../services/storage_service.dart';
 import '../utils/share_util.dart';
+import '../widgets/vegetable_avatar.dart';
 import 'add_record_screen.dart';
 import 'annual_plan_screen.dart';
 
@@ -262,8 +263,11 @@ class _PlantInfoCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(plant.vegetableEmoji,
-                  style: const TextStyle(fontSize: 52)),
+              VegetableAvatar(
+                vegetableId: plant.vegetableId,
+                vegetableName: plant.vegetableName,
+                size: 64,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(

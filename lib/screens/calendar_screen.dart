@@ -3,6 +3,7 @@ import '../data/vegetables_data.dart';
 import '../models/region.dart';
 import '../models/vegetable.dart';
 import '../services/settings_service.dart';
+import '../widgets/vegetable_avatar.dart';
 import 'add_plant_screen.dart';
 import 'vegetable_detail_screen.dart';
 import 'settings_screen.dart';
@@ -389,7 +390,11 @@ class _VeggieCard extends StatelessWidget {
       child: ListTile(
         leading: Hero(
           tag: 'veg-${v.id}',
-          child: Text(v.emoji, style: const TextStyle(fontSize: 28)),
+          child: VegetableAvatar(
+            vegetableId: v.id,
+            vegetableName: v.name,
+            size: 40,
+          ),
         ),
         title: Text(v.name,
             style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -540,11 +545,23 @@ class _GanttChartView extends StatelessWidget {
             SizedBox(
               width: _nameWidth,
               child: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Text(
-                  '${v.emoji} ${v.name}',
-                  style: const TextStyle(fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
+                padding: const EdgeInsets.only(right: 6),
+                child: Row(
+                  children: [
+                    VegetableAvatar(
+                      vegetableId: v.id,
+                      vegetableName: v.name,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        v.name,
+                        style: const TextStyle(fontSize: 11),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -8,6 +8,7 @@ import '../models/cultivation_record.dart';
 import '../models/my_plant.dart';
 import '../models/vegetable.dart';
 import '../services/storage_service.dart';
+import '../widgets/vegetable_avatar.dart';
 
 class AddRecordScreen extends StatefulWidget {
   /// マイ畑の植物から呼び出す場合に渡す（野菜を固定してリンクする）
@@ -443,9 +444,11 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                           itemBuilder: (context, index) {
                             final v = filtered[index];
                             return ListTile(
-                              leading: Text(v.emoji,
-                                  style:
-                                      const TextStyle(fontSize: 28)),
+                              leading: VegetableAvatar(
+                                vegetableId: v.id,
+                                vegetableName: v.name,
+                                size: 40,
+                              ),
                               title: Text(v.name,
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w600)),
@@ -631,8 +634,13 @@ class _VegetablePicker extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(selected?.emoji ?? '🌱',
-                style: const TextStyle(fontSize: 32)),
+            selected != null
+                ? VegetableAvatar(
+                    vegetableId: selected!.id,
+                    vegetableName: selected!.name,
+                    size: 44,
+                  )
+                : const Text('🌱', style: TextStyle(fontSize: 32)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

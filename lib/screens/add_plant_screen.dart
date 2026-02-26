@@ -4,6 +4,7 @@ import '../data/vegetables_data.dart';
 import '../models/my_plant.dart';
 import '../models/vegetable.dart';
 import '../services/storage_service.dart';
+import '../widgets/vegetable_avatar.dart';
 
 class AddPlantScreen extends StatefulWidget {
   final Vegetable? initialVegetable;
@@ -251,8 +252,11 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
                           itemBuilder: (ctx, index) {
                             final v = filtered[index];
                             return ListTile(
-                              leading: Text(v.emoji,
-                                  style: const TextStyle(fontSize: 28)),
+                              leading: VegetableAvatar(
+                                vegetableId: v.id,
+                                vegetableName: v.name,
+                                size: 40,
+                              ),
                               title: Text(v.name,
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w600)),
@@ -350,8 +354,13 @@ class _VegetablePicker extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(selected?.emoji ?? '🌱',
-                style: const TextStyle(fontSize: 32)),
+            selected != null
+                ? VegetableAvatar(
+                    vegetableId: selected!.id,
+                    vegetableName: selected!.name,
+                    size: 44,
+                  )
+                : const Text('🌱', style: TextStyle(fontSize: 32)),
             const SizedBox(width: 12),
             Expanded(
               child: Text(

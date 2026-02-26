@@ -7,6 +7,7 @@ import '../models/pest_disease.dart';
 import '../models/region.dart';
 import '../models/vegetable.dart';
 import '../services/settings_service.dart';
+import '../widgets/vegetable_avatar.dart';
 import 'add_plant_screen.dart';
 
 class VegetableDetailScreen extends StatelessWidget {
@@ -63,9 +64,10 @@ class VegetableDetailScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 32),
                       child: Hero(
                         tag: 'veg-${vegetable.id}',
-                        child: Text(
-                          vegetable.emoji,
-                          style: const TextStyle(fontSize: 72),
+                        child: VegetableAvatar(
+                          vegetableId: vegetable.id,
+                          vegetableName: vegetable.name,
+                          size: 88,
                         ),
                       ),
                     ),
