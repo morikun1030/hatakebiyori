@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/cultivation_record.dart';
+import '../models/my_plant.dart';
 import '../services/storage_service.dart';
 import '../utils/share_util.dart';
 import 'add_record_screen.dart';
+import 'plant_detail_screen.dart';
 
 class DiaryScreen extends StatefulWidget {
   const DiaryScreen({super.key});
@@ -15,6 +17,7 @@ class DiaryScreen extends StatefulWidget {
 class _DiaryScreenState extends State<DiaryScreen> {
   final _storage = StorageService();
   List<CultivationRecord> _records = [];
+  List<MyPlant> _plants = [];
   bool _loading = true;
 
   @override
@@ -25,9 +28,11 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
   Future<void> _loadRecords() async {
     final records = await _storage.getRecords();
+    final plants = await _storage.getPlants();
     records.sort((a, b) => b.date.compareTo(a.date));
     setState(() {
       _records = records;
+      _plants = plants;
       _loading = false;
     });
   }
@@ -35,6 +40,112 @@ class _DiaryScreenState extends State<DiaryScreen> {
   Future<void> _deleteRecord(String id) async {
     await _storage.deleteRecord(id);
     await _loadRecords();
+  }
+
+  Future<void> _showAddRecordPicker(BuildContext context) async {
+    final activePlants =
+        _plants.where((p) => p.status != PlantStatus.finished).toList();
+
+    // マイ畑に植物がなければ直接記録追加へ
+    if (activePlants.isEmpty) {
+      await _navigateToAddRecord(null);
+      return;
+    }
+
+    // 選択結果を追跡（null = キャンセル、(true, plant?) = 選択済み）
+    MyPlant? selectedPlant;
+    bool confirmed = false;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.55,
+        maxChildSize: 0.85,
+        minChildSize: 0.4,
+        expand: false,
+        builder: (ctx, scrollCtrl) => Column(
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text('どの植物の記録ですか？',
+                style:
+                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text('マイ畑に登録中の植物',
+                style:
+                    TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+            const Divider(height: 20),
+            Expanded(
+              child: ListView(
+                controller: scrollCtrl,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  ...activePlants.map((plant) => ListTile(
+                        leading: Text(plant.vegetableEmoji,
+                            style: const TextStyle(fontSize: 28)),
+                        title: Text(plant.vegetableName,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600)),
+                        subtitle: Text(
+                            '📍 ${plant.location}  ·  ${plant.status.label}'),
+                        trailing:
+                            const Icon(Icons.chevron_right, size: 18),
+                        onTap: () {
+                          selectedPlant = plant;
+                          confirmed = true;
+                          Navigator.pop(ctx);
+                        },
+                      )),
+                  const Divider(),
+                  ListTile(
+                    leading: const CircleAvatar(
+                      child: Icon(Icons.edit_note),
+                    ),
+                    title: const Text('マイ畑に登録せず記録する'),
+                    subtitle: const Text('野菜マスターから野菜を選んで記録'),
+                    onTap: () {
+                      selectedPlant = null;
+                      confirmed = true;
+                      Navigator.pop(ctx);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!confirmed) return; // バックキー等でキャンセル
+    await _navigateToAddRecord(selectedPlant);
+  }
+
+  Future<void> _navigateToAddRecord(MyPlant? plant) async {
+    await Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) =>
+            AddRecordScreen(initialPlant: plant),
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
+    );
+    _loadRecords();
   }
 
   int get _totalCost =>
@@ -69,18 +180,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
               ? _buildEmpty()
               : _buildContent(),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const AddRecordScreen(),
-              transitionDuration: const Duration(milliseconds: 300),
-              transitionsBuilder: (_, animation, __, child) =>
-                  FadeTransition(opacity: animation, child: child),
-            ),
-          );
-          _loadRecords();
-        },
+        onPressed: () => _showAddRecordPicker(context),
         icon: const Icon(Icons.add),
         label: const Text('記録を追加'),
       ),
@@ -175,6 +275,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
               ),
               ...dayRecords.map((record) => _RecordCard(
                     record: record,
+                    linkedPlant: _plants
+                        .where((p) => p.id == record.myPlantId)
+                        .firstOrNull,
                     onDelete: () => _deleteRecord(record.id),
                     onShare: () => ShareUtil.showShareSheet(
                       context,
@@ -303,6 +406,7 @@ class _VerticalDivider extends StatelessWidget {
 
 class _RecordCard extends StatelessWidget {
   final CultivationRecord record;
+  final MyPlant? linkedPlant;
   final VoidCallback onDelete;
   final VoidCallback onShare;
 
@@ -310,6 +414,7 @@ class _RecordCard extends StatelessWidget {
     required this.record,
     required this.onDelete,
     required this.onShare,
+    this.linkedPlant,
   });
 
   @override
@@ -387,6 +492,56 @@ class _RecordCard extends StatelessWidget {
                             ),
                           ],
                         ),
+                        if (linkedPlant != null) ...[
+                          const SizedBox(height: 6),
+                          GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PlantDetailScreen(
+                                    plant: linkedPlant!),
+                              ),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(linkedPlant!.vegetableEmoji,
+                                      style: const TextStyle(
+                                          fontSize: 13)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'マイ畑: ${linkedPlant!.vegetableName}（${linkedPlant!.location}）',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 10,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                         if (record.harvestAmount != null ||
                             record.cost != null) ...[
                           const SizedBox(height: 6),
