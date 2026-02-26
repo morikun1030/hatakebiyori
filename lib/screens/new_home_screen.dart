@@ -473,19 +473,14 @@ class _FeatureCardGrid extends StatelessWidget {
       _FeatureItem('⚙️', '設定', '地域・バックアップ', onSettings),
     ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final cols = constraints.maxWidth > 400 ? 3 : 2;
-        return GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: cols,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: cols == 3 ? 1.4 : 1.6,
-          children: items.map((item) => _FeatureCard(item: item)).toList(),
-        );
-      },
+    return SizedBox(
+      height: 88,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: items.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (_, i) => _FeatureCard(item: items[i]),
+      ),
     );
   }
 }
@@ -515,33 +510,22 @@ class _FeatureCard extends StatelessWidget {
         onTap: item.onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          width: 80,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.grey.shade200),
           ),
-          child: Row(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(item.emoji, style: const TextStyle(fontSize: 26)),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      item.title,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      item.subtitle,
-                      style: TextStyle(
-                          fontSize: 11, color: Colors.grey.shade600),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+              Text(item.emoji, style: const TextStyle(fontSize: 28)),
+              const SizedBox(height: 6),
+              Text(
+                item.title,
+                style: const TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
